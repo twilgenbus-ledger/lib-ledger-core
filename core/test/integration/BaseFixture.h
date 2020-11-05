@@ -147,6 +147,8 @@ public:
 
     void resetDispatcher();
 
+    void mockHttp(const std::string& testname);
+
     std::shared_ptr<uv::UvThreadDispatcher> dispatcher;
     std::shared_ptr<NativePathResolver> resolver;
     std::shared_ptr<DatabaseBackend> backend;

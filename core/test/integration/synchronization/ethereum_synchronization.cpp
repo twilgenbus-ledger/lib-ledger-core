@@ -41,10 +41,6 @@
 #include <wallet/ethereum/ERC20/ERC20LikeAccount.h>
 #include <iostream>
 #include "FakeHttpClient.hpp"
-#include "../../fixtures/http_cache_EthereumLikeWalletSynchronization_MediumXpubSynchronization_1.h"
-#include "../../fixtures/http_cache_EthereumLikeWalletSynchronization_MediumXpubSynchronization_2.h"
-#include "../../fixtures/http_cache_EthereumLikeWalletSynchronization_MediumXpubSynchronization_3.h"
-#include "../../fixtures/http_cache_EthereumLikeWalletSynchronization_MediumXpubSynchronization_4.h"
 
 using namespace std;
 
@@ -52,16 +48,8 @@ class EthereumLikeWalletSynchronization : public BaseFixture {
 
 };
 
-TEST_F(EthereumLikeWalletSynchronization, DISABLED_MediumXpubSynchronization) {
-    http->addCache(HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_1::URL,
-        HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_1::BODY);
-    http->addCache(HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_2::URL,
-        HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_2::BODY);
-    http->addCache(HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_3::URL,
-        HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_3::BODY);
-    http->addCache(HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_4::URL,
-        HTTP_CACHE_EthereumLikeWalletSynchronization_MediumXpubSynchronization_4::BODY);
-    
+TEST_F(EthereumLikeWalletSynchronization, MediumXpubSynchronization) {
+    mockHttp("EthereumLikeWalletSynchronization.MediumXpubSynchronization");
     auto walletName = "e847815f-488a-4301-b67c-378a5e9c8a61";
     auto erc20Count = 0;
     {
@@ -217,7 +205,9 @@ TEST_F(EthereumLikeWalletSynchronization, DISABLED_BalanceHistory) {
     }
 }
 
-TEST_F(EthereumLikeWalletSynchronization, DISABLED_XpubSynchronization) {
+TEST_F(EthereumLikeWalletSynchronization, XpubSynchronization) {
+    mockHttp("EthereumLikeWalletSynchronization.XpubSynchronization");
+    
     auto pool = newDefaultPool();
     {
         auto configuration = DynamicObject::newInstance();
