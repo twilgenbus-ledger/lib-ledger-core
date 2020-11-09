@@ -156,7 +156,9 @@ TEST_F(EthereumLikeWalletSynchronization, MediumXpubSynchronization) {
     }
 }
 
-TEST_F(EthereumLikeWalletSynchronization, DISABLED_BalanceHistory) {
+TEST_F(EthereumLikeWalletSynchronization, BalanceHistory) {
+    mockHttp("EthereumLikeWalletSynchronization.BalanceHistory");
+
     auto walletName = "e847815f-488a-4301-b67c-378a5e9c8a61";
     auto erc20Count = 0;
     {
@@ -278,7 +280,9 @@ TEST_F(EthereumLikeWalletSynchronization, XpubSynchronization) {
     }
 }
 
-TEST_F(EthereumLikeWalletSynchronization, DISABLED_XpubETCSynchronization) {
+TEST_F(EthereumLikeWalletSynchronization, XpubETCSynchronization) {
+    mockHttp("EthereumLikeWalletSynchronization.XpubETCSynchronization");
+
     auto pool = newDefaultPool();
     {
         auto configuration = DynamicObject::newInstance();
