@@ -310,6 +310,7 @@ void BaseFixture::resetDispatcher()
 void BaseFixture::mockHttp(const std::string& testname) {
     const char* env = std::getenv("MOCK_HTTP_FOLDER");
     if (env != nullptr) { 
+        http->clearCache();
         std::string path = env;
         path += "/";
         path += testname;
@@ -330,27 +331,4 @@ void BaseFixture::mockHttp(const std::string& testname) {
             }
         }
     }
-
-
-
-
-
-
-        /*boost::filesystem::path path(folder);
-        path += testname;
-        if(boost::filesystem::is_directory(path)) {
-            boost::filesystem::directory_iterator endItr;
-            for (boost::filesystem::directory_iterator itr(path); itr != endItr; ++itr) {
-                const string currentFile = itr->path().string();
-                if (boost::filesystem::is_regular_file(itr->path()) && currentFile.find(".txt") != std::string::npos) {
-                    std::ifstream infile(currentFile);    
-                    std::string url, parameter, body;
-                    std::getline(infile, url);
-                    std::getline(infile, parameter);
-                    std::getline(infile, body);
-                    http->addCache(url, parameter, body);
-                }
-            }
-        }*/
-     
 }
