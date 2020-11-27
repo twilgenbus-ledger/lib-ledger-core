@@ -210,7 +210,7 @@ TEST_F(BitcoinLikeWalletSynchronization, MediumLTCXpubSynchronization) {
 }
 
 TEST_F(BitcoinLikeWalletSynchronization, SynchronizeOnceAtATime) {
-    mockHttp("BitcoinLikeWalletSynchronization.SynchronizeOnceAtATime");
+    //mockHttp("BitcoinLikeWalletSynchronization.SynchronizeOnceAtATime");
     auto pool = newDefaultPool();
     {
         auto wallet = uv::wait(pool->createWallet("e847815f-488a-4301-b67c-378a5e9c8a62", "bitcoin",
