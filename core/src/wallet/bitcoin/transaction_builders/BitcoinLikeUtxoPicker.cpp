@@ -116,7 +116,7 @@ namespace ledger {
             // Fill change outputs
 
             auto picker = buddy->request.utxoPicker.getValue();
-            auto nbChangeToUse;
+            int nbChangeToUse;
             const api::BitcoinLikePickingStrategy strategy = std::get<0>(picker);
             switch (strategy) {
                 case api::BitcoinLikePickingStrategy::DEEP_OUTPUTS_FIRST:

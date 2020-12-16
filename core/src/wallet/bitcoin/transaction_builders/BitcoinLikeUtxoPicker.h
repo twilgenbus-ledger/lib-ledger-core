@@ -74,7 +74,7 @@ namespace ledger {
                         const std::shared_ptr<BitcoinLikeKeychain>& k,
                         const std::shared_ptr<spdlog::logger>& l,
                         std::shared_ptr<BitcoinLikeTransactionApi> t,
-                        bool partial, int nbChangeToUse) : request(r), explorer(e), keychain(k), transaction(t), getUtxo(g),
+                        bool partial) : request(r), explorer(e), keychain(k), transaction(t), getUtxo(g),
                           getTransaction(tx), logger(l), isPartial(partial)
                 {
                     if(request.wipe) {
@@ -94,7 +94,6 @@ namespace ledger {
                 std::shared_ptr<spdlog::logger> logger;
                 BigInt changeAmount;
                 bool isPartial;
-                int nbChangeToUse;
             };
         protected:
             virtual Future<Unit> fillInputs(const std::shared_ptr<Buddy>& buddy);
