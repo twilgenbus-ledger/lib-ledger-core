@@ -61,11 +61,11 @@ namespace ledger {
                     logger->info("Constructing BitcoinLikeTransactionBuildFunction with blockHeight: {}", currentBlockHeight);
                     auto tx = std::make_shared<BitcoinLikeTransactionApi>(self->_currency, keychain->getKeychainEngine(), currentBlockHeight);
                     auto filteredGetUtxo = createFilteredUtxoFunction(r, keychain, getUtxo);
-                    return std::make_shared<Buddy>(r, filteredGetUtxo, getTransaction, explorer, keychain, logger, tx, partial);
+                    return std::make_shared<Buddy>(r, filteredGetUtxo, getTransaction, explorer, keychain, logger, tx, partial, nbChangeToUse);
                 }).flatMap<std::shared_ptr<api::BitcoinLikeTransaction>>(self->getContext(), [=] (const std::shared_ptr<Buddy>& buddy) -> Future<std::shared_ptr<api::BitcoinLikeTransaction>> {
                     buddy->logger->info("Buddy created");
                     return self->fillInputs(buddy).flatMap<Unit>(self->getContext(), [=] (const Unit&) -> Future<Unit> {
-                        return self->fillOutputs(buddy, nbChangeToUse);
+                        return self->fillOutputs(buddy);
                     }).flatMap<Unit>(self->getContext(), [=] (const Unit&) -> Future<Unit> {
                         return self->fillTransactionInfo(buddy);
                     }).mapPtr<api::BitcoinLikeTransaction>(self->getContext(), [=] (const Unit&) -> std::shared_ptr<api::BitcoinLikeTransaction> {
@@ -80,7 +80,7 @@ namespace ledger {
             return _currency;
         }
 
-        Future<Unit> BitcoinLikeUtxoPicker::fillOutputs(const std::shared_ptr<Buddy>& buddy, int nbChangeToUse) {
+        Future<Unit> BitcoinLikeUtxoPicker::fillOutputs(const std::shared_ptr<Buddy>& buddy) {
             // Fill reception outputs
             auto params = getCurrency().bitcoinLikeNetworkParameters.value();
             auto outputIndex = 0;
@@ -116,32 +116,34 @@ namespace ledger {
 
             // Fill change outputs
 
-            if (buddy->changeAmount > BigInt(_currency.bitcoinLikeNetworkParameters.value().DustAmount)) {
-                auto remainingChangeAmount = buddy->changeAmount.toUint64();
-                for (int i = 0; i < nbChangeToUse; i++) {
-                    auto changeAddress = buddy->keychain->getFreshAddress(BitcoinLikeKeychain::CHANGE)->toString();
+            
+            auto remainingChangeAmount = buddy->changeAmount.toUint64();
+            for (int i = 0; i < buddy->nbChangeToUse; i++) {
+                if (remainingChangeAmount < _currency.bitcoinLikeNetworkParameters.value().DustAmount)
+                    break;
+                auto changeAddress = buddy->keychain->getFreshAddress(BitcoinLikeKeychain::CHANGE)->toString();
 
-                    auto script = BitcoinLikeScript::fromAddress(changeAddress, _currency);
-                    BitcoinLikeBlockchainExplorerOutput out;
-                    out.index = static_cast<uint64_t>(buddy->transaction->getOutputs().size());
-                    if (i == nbChangeToUse - 1) {
-                        out.value = BigInt(remainingChangeAmount);
-                    } else {
-                        const uint64_t changeAmountPart = ((double) rand() / (RAND_MAX)) * remainingChangeAmount;
-                        remainingChangeAmount -= changeAmountPart;
-                        out.value = BigInt(changeAmountPart);
-                    }
-                    out.address = Option<std::string>(changeAddress).toOptional();
-                    out.script = hex::toString(script.serialize());
-                    std::shared_ptr<api::DerivationPath> derivationPath = nullptr;
-                    auto path = buddy->keychain->getAddressDerivationPath(changeAddress);
-                    if (path.nonEmpty()) {
-                        derivationPath = std::make_shared<DerivationPathApi>(DerivationPath(path.getValue()));
-                    }
-                    buddy->transaction->addOutput(std::make_shared<BitcoinLikeOutputApi>(out, getCurrency(), derivationPath));
+                auto script = BitcoinLikeScript::fromAddress(changeAddress, _currency);
+                BitcoinLikeBlockchainExplorerOutput out;
+                out.index = static_cast<uint64_t>(buddy->transaction->getOutputs().size());
+                if (i == buddy->nbChangeToUse - 1) {
+                    out.value = BigInt(remainingChangeAmount);
+                } else {
+                    uint64_t changeAmountPart = ((double) rand() / (RAND_MAX)) * remainingChangeAmount;
+                    if (changeAmountPart < _currency.bitcoinLikeNetworkParameters.value().DustAmount)
+                        changeAmountPart = _currency.bitcoinLikeNetworkParameters.value().DustAmount;
+                    remainingChangeAmount -= changeAmountPart;
+                    out.value = BigInt(changeAmountPart);
                 }
+                out.address = Option<std::string>(changeAddress).toOptional();
+                out.script = hex::toString(script.serialize());
+                std::shared_ptr<api::DerivationPath> derivationPath = nullptr;
+                auto path = buddy->keychain->getAddressDerivationPath(changeAddress);
+                if (path.nonEmpty()) {
+                    derivationPath = std::make_shared<DerivationPathApi>(DerivationPath(path.getValue()));
+                }
+                buddy->transaction->addOutput(std::make_shared<BitcoinLikeOutputApi>(out, getCurrency(), derivationPath));
             }
-
             return Future<Unit>::successful(unit);
         }
 

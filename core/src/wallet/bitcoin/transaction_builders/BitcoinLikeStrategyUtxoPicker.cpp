@@ -67,7 +67,6 @@ namespace ledger {
 
                         auto picker = buddy->request.utxoPicker.getValue();
                         const api::BitcoinLikePickingStrategy strategy = std::get<0>(picker);
-
                         switch (strategy) {
                             case api::BitcoinLikePickingStrategy::DEEP_OUTPUTS_FIRST:
                                 return filterWithDeepFirst(buddy, utxos, amount, getCurrency());
@@ -75,6 +74,8 @@ namespace ledger {
                                 return filterWithOptimizeSize(buddy, utxos, amount, getCurrency());
                             case api::BitcoinLikePickingStrategy::MERGE_OUTPUTS:
                                 return filterWithMergeOutputs(buddy, utxos, amount, getCurrency());
+                            case api::BitcoinLikePickingStrategy::BEST_PRIVACY:
+                                return filterWithBestPrivacy(buddy, utxos, amount, getCurrency());
                         }
                     });
             });
@@ -549,6 +550,41 @@ namespace ledger {
             return filterWithSort(buddy, utxos, aggregatedAmount, currency, [](auto &lhs, auto &rhs) {
                 return lhs.value.toLong() < rhs.value.toLong();
             });
+        }
+
+        std::vector<BitcoinLikeUtxo> BitcoinLikeStrategyUtxoPicker::filterWithBestPrivacy(
+            const std::shared_ptr<BitcoinLikeUtxoPicker::Buddy>& buddy,
+            const std::vector<BitcoinLikeUtxo>& utxos,
+            const BigInt& aggregatedAmount,
+            const api::Currency& currency) {
+            auto const fixedSize = BitcoinLikeTransactionApi::estimateSize(0,
+                0,
+                currency,
+                buddy->keychain->getKeychainEngine());
+            //TODO change the outputsize
+            const int64_t oneOutputSize = BitcoinLikeTransactionApi::estimateSize(0,
+                1,
+                currency,
+                buddy->keychain->getKeychainEngine()).Max - fixedSize.Max;
+            const int64_t signedUTXOSize = BitcoinLikeTransactionApi::estimateSize(1,
+                0,
+                currency,
+                buddy->keychain->getKeychainEngine()).Max - fixedSize.Max;
+            const int64_t changeSize = oneOutputSize;
+            const int64_t signedChangeSize = signedUTXOSize;
+            const int64_t effectiveFees = buddy->request.feePerByte->toInt64();
+            const int64_t costOfChange = effectiveFees * (signedChangeSize + changeSize);
+            int64_t notInputFees = effectiveFees * (fixedSize.Max + (int64_t)(oneOutputSize * buddy->request.outputs.size()));
+            int64_t actualTarget = notInputFees + buddy->outputAmount.toInt64();
+            int64_t total = 0;
+            auto selectedUtxos = filterWithOptimizeSize(buddy, utxos, aggregatedAmount, currency);
+            for (auto utxo : selectedUtxos) {
+                total += utxo.value.toLong();
+            }
+            if (total-actualTarget< currency.bitcoinLikeNetworkParameters.value().DustAmount)
+                return selectedUtxos;
+            else
+                return filterWithDeepFirst(buddy, utxos, aggregatedAmount, currency);
         }
 
         std::vector<BitcoinLikeUtxo> BitcoinLikeStrategyUtxoPicker::filterWithSort(
