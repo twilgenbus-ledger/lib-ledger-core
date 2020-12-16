@@ -80,6 +80,7 @@ namespace ledger {
             Option<std::tuple<api::BitcoinLikePickingStrategy, uint32_t>> utxoPicker;
             std::shared_ptr<BigInt> maxChange;
             std::shared_ptr<BigInt> minChange;
+            std::shared_ptr<BitcoinLikeAddress> donationAddress;
             bool wipe;
         };
 
@@ -123,6 +124,9 @@ namespace ledger {
 
             std::shared_ptr<api::BitcoinLikeTransactionBuilder>
             setMinAmountOnChange(const std::shared_ptr<api::Amount> &amount) override;
+
+            std::shared_ptr<api::BitcoinLikeTransactionBuilder>
+            setDonationAddress(const std::shared_ptr<api::Address> &donationAddress) override;
 
             std::shared_ptr<api::BitcoinLikeTransactionBuilder> clone() override;
 

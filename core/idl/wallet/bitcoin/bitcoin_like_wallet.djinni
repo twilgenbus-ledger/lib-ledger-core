@@ -260,6 +260,10 @@ BitcoinLikeTransactionBuilder = interface +c {
     # @return A reference on the same builder in order to chain calls.
     setMinAmountOnChange(amount: Amount): BitcoinLikeTransactionBuilder;
 
+    # Set a donation address for change < amount. This use setMinAmountOnChange.
+    # @return A reference on the same builder in order to chain calls.
+    setDonationAddress(donationAddress: Address): BitcoinLikeTransactionBuilder;
+
     # Set the UTXO picking strategy (see [[BitcoinLikePickingStrategy]]).
     # @param strategy The strategy to adopt in order to select which input to use in the transaction.
     # @param sequence The sequence value serialized at the end of the raw transaction. If you don't know what to put here

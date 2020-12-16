@@ -155,6 +155,12 @@ namespace ledger {
             return shared_from_this();
         }
 
+        std::shared_ptr<api::BitcoinLikeTransactionBuilder>
+        BitcoinLikeTransactionBuilder::setDonationAddress(const std::shared_ptr<api::Address> &donationAddress) {
+            _request.donationAddress = std::dynamic_pointer_cast<BitcoinLikeAddress>(donationAddress);
+            return shared_from_this();
+        }
+
         std::shared_ptr<api::BitcoinLikeTransactionBuilder> BitcoinLikeTransactionBuilder::clone() {
             return std::make_shared<BitcoinLikeTransactionBuilder>(*this);
         }

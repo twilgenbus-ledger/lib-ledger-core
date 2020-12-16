@@ -49,7 +49,7 @@ public:
 
     virtual void broadcastTransaction(const std::shared_ptr<BitcoinLikeTransaction> & transaction, const std::shared_ptr<StringCallback> & callback) = 0;
 
-    virtual std::shared_ptr<BitcoinLikeTransactionBuilder> buildTransaction(bool partial, int nbChangeToUse = 1) = 0;
+    virtual std::shared_ptr<BitcoinLikeTransactionBuilder> buildTransaction(bool partial) = 0;
 
     /**
      * Get fees from network, fees are ordered in descending order (i.e. fastest to slowest confirmation)
