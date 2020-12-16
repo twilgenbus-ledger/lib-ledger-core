@@ -62,7 +62,8 @@ namespace ledger {
                     const std::shared_ptr<BitcoinLikeKeychain>& keychain,
                     const uint64_t currentBlockHeight,
                     const std::shared_ptr<spdlog::logger>& logger,
-                    bool partial);
+                    bool partial,
+                    int nbChangeToUse = 1);
             const api::Currency& getCurrency() const;
 
             struct Buddy {
@@ -98,7 +99,7 @@ namespace ledger {
         protected:
             virtual Future<Unit> fillInputs(const std::shared_ptr<Buddy>& buddy);
             virtual Future<std::vector<BitcoinLikeUtxo>> filterInputs(const std::shared_ptr<Buddy>& buddy) = 0;
-            virtual Future<Unit> fillOutputs(const std::shared_ptr<Buddy>& buddy);
+            virtual Future<Unit> fillOutputs(const std::shared_ptr<Buddy>& buddy, int nbChangeToUse = 1);
             virtual Future<Unit> fillTransactionInfo(const std::shared_ptr<Buddy>& buddy);
 
         private:
