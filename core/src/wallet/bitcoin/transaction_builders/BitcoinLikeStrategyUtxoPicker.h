@@ -65,6 +65,10 @@ namespace ledger {
                 const std::vector<BitcoinLikeUtxo>& utxo,
                 const BigInt& aggregatedAmount,
                 const api::Currency& currrency);
+            static std::vector<BitcoinLikeUtxo> filterWithBestPrivacy(const std::shared_ptr<Buddy>& buddy,
+                const std::vector<BitcoinLikeUtxo>& utxo,
+                const BigInt& aggregatedAmount,
+                const api::Currency& currrency);
             static bool hasEnough(const std::shared_ptr<Buddy>& buddy,
                 const BigInt& aggregatedAmount,
                 int inputCount,
