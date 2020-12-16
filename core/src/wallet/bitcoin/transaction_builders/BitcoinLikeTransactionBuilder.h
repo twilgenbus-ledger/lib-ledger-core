@@ -38,6 +38,7 @@
 #include <api/BitcoinLikePickingStrategy.hpp>
 #include <api/BitcoinLikeNetworkParameters.hpp>
 #include <api/BitcoinLikeTransaction.hpp>
+#include <api/BitcoinLikeAddress.hpp>
 #include <api/Amount.hpp>
 #include <functional>
 #include <list>
@@ -80,7 +81,7 @@ namespace ledger {
             Option<std::tuple<api::BitcoinLikePickingStrategy, uint32_t>> utxoPicker;
             std::shared_ptr<BigInt> maxChange;
             std::shared_ptr<BigInt> minChange;
-            std::shared_ptr<BitcoinLikeAddress> donationAddress;
+            std::shared_ptr<api::BitcoinLikeAddress> donationAddress;
             bool wipe;
         };
 

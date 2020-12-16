@@ -79,8 +79,8 @@ public:
     virtual std::shared_ptr<BitcoinLikeTransactionBuilder> setMinAmountOnChange(const std::shared_ptr<Amount> & amount) = 0;
 
     /**
-     * @return A reference on the same builder in order to chain calls.
      * Set a donation address for change < amount. This use setMinAmountOnChange.
+     * @return A reference on the same builder in order to chain calls.
      */
     virtual std::shared_ptr<BitcoinLikeTransactionBuilder> setDonationAddress(const std::shared_ptr<Address> & donationAddress) = 0;
 

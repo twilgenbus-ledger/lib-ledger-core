@@ -18,8 +18,8 @@ template <>
 BitcoinLikePickingStrategy from_string(const std::string& bitcoinLikePickingStrategy) {
     if (bitcoinLikePickingStrategy == "DEEP_OUTPUTS_FIRST") return BitcoinLikePickingStrategy::DEEP_OUTPUTS_FIRST;
     else if (bitcoinLikePickingStrategy == "OPTIMIZE_SIZE") return BitcoinLikePickingStrategy::OPTIMIZE_SIZE;
-    else if (bitcoinLikePickingStrategy == "BEST_PRIVACY") return BitcoinLikePickingStrategy::BEST_PRIVACY;
-    else return BitcoinLikePickingStrategy::MERGE_OUTPUTS;
+    else if (bitcoinLikePickingStrategy == "MERGE_OUTPUTS") return BitcoinLikePickingStrategy::MERGE_OUTPUTS;
+    else return BitcoinLikePickingStrategy::BEST_PRIVACY;
 };
 
 std::ostream &operator<<(std::ostream &os, const BitcoinLikePickingStrategy &o)
