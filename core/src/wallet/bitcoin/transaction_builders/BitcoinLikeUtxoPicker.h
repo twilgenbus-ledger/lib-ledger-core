@@ -62,8 +62,7 @@ namespace ledger {
                     const std::shared_ptr<BitcoinLikeKeychain>& keychain,
                     const uint64_t currentBlockHeight,
                     const std::shared_ptr<spdlog::logger>& logger,
-                    bool partial,
-                    int nbChangeToUse = 1);
+                    bool partial);
             const api::Currency& getCurrency() const;
 
             struct Buddy {

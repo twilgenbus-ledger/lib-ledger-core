@@ -51,8 +51,7 @@ namespace ledger {
                                                 const std::shared_ptr<BitcoinLikeKeychain> &keychain,
                                                 const uint64_t currentBlockHeight,
                                                 const std::shared_ptr<spdlog::logger>& logger,
-                                                bool partial,
-                                                int nbChangeToUse)
+                                                bool partial)
         {
             auto self = shared_from_this();
             logger->info("Get build function");
@@ -61,7 +60,7 @@ namespace ledger {
                     logger->info("Constructing BitcoinLikeTransactionBuildFunction with blockHeight: {}", currentBlockHeight);
                     auto tx = std::make_shared<BitcoinLikeTransactionApi>(self->_currency, keychain->getKeychainEngine(), currentBlockHeight);
                     auto filteredGetUtxo = createFilteredUtxoFunction(r, keychain, getUtxo);
-                    return std::make_shared<Buddy>(r, filteredGetUtxo, getTransaction, explorer, keychain, logger, tx, partial, nbChangeToUse);
+                    return std::make_shared<Buddy>(r, filteredGetUtxo, getTransaction, explorer, keychain, logger, tx, partial);
                 }).flatMap<std::shared_ptr<api::BitcoinLikeTransaction>>(self->getContext(), [=] (const std::shared_ptr<Buddy>& buddy) -> Future<std::shared_ptr<api::BitcoinLikeTransaction>> {
                     buddy->logger->info("Buddy created");
                     return self->fillInputs(buddy).flatMap<Unit>(self->getContext(), [=] (const Unit&) -> Future<Unit> {
@@ -116,9 +115,21 @@ namespace ledger {
 
             // Fill change outputs
 
-            
+            auto picker = buddy->request.utxoPicker.getValue();
+            auto nbChangeToUse;
+            const api::BitcoinLikePickingStrategy strategy = std::get<0>(picker);
+            switch (strategy) {
+                case api::BitcoinLikePickingStrategy::DEEP_OUTPUTS_FIRST:
+                case api::BitcoinLikePickingStrategy::OPTIMIZE_SIZE:
+                case api::BitcoinLikePickingStrategy::MERGE_OUTPUTS:
+                    nbChangeToUse = 1;
+                    break;
+                case api::BitcoinLikePickingStrategy::BEST_PRIVACY:
+                    nbChangeToUse = 3;
+                    break;
+            }
             auto remainingChangeAmount = buddy->changeAmount.toUint64();
-            for (int i = 0; i < buddy->nbChangeToUse; i++) {
+            for (int i = 0; i < nbChangeToUse; i++) {
                 if (remainingChangeAmount < _currency.bitcoinLikeNetworkParameters.value().DustAmount)
                     break;
                 auto changeAddress = buddy->keychain->getFreshAddress(BitcoinLikeKeychain::CHANGE)->toString();
@@ -126,7 +137,7 @@ namespace ledger {
                 auto script = BitcoinLikeScript::fromAddress(changeAddress, _currency);
                 BitcoinLikeBlockchainExplorerOutput out;
                 out.index = static_cast<uint64_t>(buddy->transaction->getOutputs().size());
-                if (i == buddy->nbChangeToUse - 1) {
+                if (i == nbChangeToUse - 1) {
                     out.value = BigInt(remainingChangeAmount);
                 } else {
                     uint64_t changeAmountPart = ((double) rand() / (RAND_MAX)) * remainingChangeAmount;

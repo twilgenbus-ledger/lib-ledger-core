@@ -581,7 +581,7 @@ namespace ledger {
             for (auto utxo : selectedUtxos) {
                 total += utxo.value.toLong();
             }
-            if (total-actualTarget< currency.bitcoinLikeNetworkParameters.value().DustAmount)
+            if (total - actualTarget < currency.bitcoinLikeNetworkParameters.value().DustAmount)
                 return selectedUtxos;
             else
                 return filterWithDeepFirst(buddy, utxos, aggregatedAmount, currency);

@@ -313,7 +313,7 @@ BitcoinLikeAccount = interface +c {
     getUTXOCount(callback: Callback<i32>);
     broadcastRawTransaction(transaction: binary, callback: Callback<string>);
     broadcastTransaction(transaction: BitcoinLikeTransaction, callback: Callback<string>);
-    buildTransaction(partial: bool, nbChangeToUse: i32): BitcoinLikeTransactionBuilder;
+    buildTransaction(partial: bool): BitcoinLikeTransactionBuilder;
     # Get fees from network, fees are ordered in descending order (i.e. fastest to slowest confirmation)
     # Note: it would have been better to have this method on BitcoinLikeWallet
     # but since BitcoinLikeWallet is not used anywhere, it's better to keep all
